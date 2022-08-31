@@ -112,6 +112,25 @@ class ClientTest extends TestCase {
 	/**
 	 * @throws Exception
 	 */
+	public function testPostAsArray() {
+		$testURI = $this->url;
+		$client = new Client(
+			[
+				'baseUrl' => $testURI,
+				'object' => false,
+			]
+		);
+		$request = $client->post('', ['data' => [
+			'title' => 'foo',
+			'body' => 'bar',
+			'userId' => 1,
+		]]);
+		$this->assertEquals('bar', $request['data']['body']);
+	}
+
+	/**
+	 * @throws Exception
+	 */
 	public function testPostAsObject() {
 		$testURI = $this->url;
 		$client = new Client(
@@ -125,7 +144,6 @@ class ClientTest extends TestCase {
 			'body' => 'bar',
 			'userId' => 1,
 		]]);
-		// var_dump($request);
 		$this->assertEquals('bar', $request->data->body);
 	}
 }
