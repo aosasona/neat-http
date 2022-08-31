@@ -1,0 +1,27 @@
+{
+    "name": "trulyao/neat-http",
+    "description": "An HTTP client/wrapper based on curL",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Trulyao\\NeatHttp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ayodeji O",
+            "email": "osasonaayodeji1@gmail.com"
+        }
+    ],
+    "require": {
+		"ext-curl": "*",
+        "ext-json": "*"
+	},
+    "require-dev": {
+        "phpunit/phpunit": "^9.5.24"
+    },
+    "scripts" : {
+        "test" : "vendor/bin/phpunit --bootstrap vendor/autoload.php __tests__/"
+    }
+}
