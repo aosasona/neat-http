@@ -21,7 +21,7 @@ class Utils {
 	 * @param array $headers
 	 * @return void
 	 */
-	public function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers): void {
+	public function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers, array $data): void {
 		$uri = $this->client->baseUrl.'/'.$endpoint;
 		$default_options = [
 			CURLOPT_URL => $uri,
@@ -32,6 +32,7 @@ class Utils {
 			CURLOPT_CUSTOMREQUEST => $method,
 			CURLOPT_FAILONERROR => true,
 			CURLOPT_HEADER => true,
+			CURLOPT_POSTFIELDS => json_encode($data),
 		];
 		curl_setopt_array($curl, $default_options);
 	}
@@ -91,7 +92,8 @@ class Utils {
 		$method = strtoupper($options['method'] ?? 'GET');
 		$endpoint = trim($endpoint, '/');
 		$headers = $this->makeHeaders($options['headers'] ?? []);
-		return array($method, $endpoint, $headers);
+		$data = $options['data'] ?? [];
+		return array($method, $endpoint, $headers, $data);
 	}
 
 	/**

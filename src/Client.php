@@ -31,18 +31,21 @@ class Client {
 	 * @throws Exception
 	 */
 	final public function get(string $endpoint, ?array $options = []): array|stdClass {
-		return $this->request($endpoint, array_merge([$options, [
+		return $this->request($endpoint, array_merge($options, [
 			'method' => 'GET',
-		]]));
+		]));
 	}
 
 	/**
 	 * @param string $endpoint
 	 * @param array|null $options
 	 * @return array|stdClass
+	 * @throws Exception
 	 */
 	final public function post(string $endpoint, ?array $options = []): array|stdClass {
-		return [];
+		return $this->request($endpoint, array_merge($options, [
+			'method' => 'POST',
+		]));
 	}
 
 	/**
@@ -51,6 +54,10 @@ class Client {
 	 * @return array|stdClass
 	 */
 	final public function delete(string $endpoint, ?array $options = []): array|stdClass {
+		return [];
+	}
+
+	final public function head(string $endpoint, ?array $options = []): array|stdClass {
 		return [];
 	}
 
@@ -72,19 +79,33 @@ class Client {
 	final public function request(string $endpoint, ?array $options = []): array|stdClass {
 		try {
 			$curl = $this->curl;
-			list($method, $endpoint, $headers) = $this->prepareRequestParams($options, $endpoint);
-			$this->setCurlOptions($curl, $endpoint, $method, $headers);
+			list($method, $endpoint, $headers, $data) = $this->prepareRequestParams($options, $endpoint);
+			$this->setCurlOptions($curl, $endpoint, $method, $headers, $data);
 			$full_response = $this->extractHeadersAndBody($curl, $this->executeCurlAndRetryOnSSLError($curl));
 			$body = $this->parseResponse($full_response['body'] ?? '');
 			$headers = $this->parseResponseHeaders($full_response['headers'] ?? []);
 			return $this->makeResponse([
 				'headers' => $headers,
 				'data' => $body,
-				'status' => curl_getinfo($curl, CURLINFO_HTTP_CODE),
+				'status' => curl_getinfo($curl, CURLINFO_HTTP_CODE) ?? 200,
 			]);
 		} catch(Exception $e) {
 			throw new Exception($e->getMessage());
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isObject(): bool {
+		return $this->object;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getHeaders(): array {
+		return $this->headers;
 	}
 
 	/**
@@ -119,8 +140,8 @@ class Client {
 	 * @param array $headers
 	 * @return void
 	 */
-	private function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers): void {
-		$this->utils->setCurlOptions($curl, $endpoint, $method, $headers);
+	private function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers, array $data): void {
+		$this->utils->setCurlOptions($curl, $endpoint, $method, $headers, $data);
 	}
 
 	/**
@@ -158,20 +179,6 @@ class Client {
 		return $this->utils->executeCurlAndRetryOnSSLError($curl);
 	}
 
-
-	/**
-	 * @return bool
-	 */
-	public function isObject(): bool {
-		return $this->object;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getHeaders(): array {
-		return $this->headers;
-	}
 
 	/**
 	 *

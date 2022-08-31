@@ -47,7 +47,7 @@ class ClientTest extends TestCase {
 	 * @throws Exception
 	 */
 	public function testRequestAsArray() {
-		$testURI = "https://jsonplaceholder.typicode.com/posts";
+		$testURI = $this->url;
 		$client = new Client(
 			[
 				'baseUrl' => $testURI,
@@ -65,7 +65,7 @@ class ClientTest extends TestCase {
 	 * @throws Exception
 	 */
 	public function testRequestAsObject() {
-		$testURI = "https://jsonplaceholder.typicode.com/posts";
+		$testURI = $this->url;
 		$client = new Client(
 			[
 				'baseUrl' => $testURI,
@@ -83,7 +83,7 @@ class ClientTest extends TestCase {
 	 * @throws Exception
 	 */
 	public function testGetAsArray() {
-		$testURI = "https://jsonplaceholder.typicode.com/posts";
+		$testURI = $this->url;
 		$client = new Client(
 			[
 				'baseUrl' => $testURI,
@@ -98,7 +98,7 @@ class ClientTest extends TestCase {
 	 * @throws Exception
 	 */
 	public function testGetAsObject() {
-		$testURI = "https://jsonplaceholder.typicode.com/posts";
+		$testURI = $this->url;
 		$client = new Client(
 			[
 				'baseUrl' => $testURI,
@@ -107,5 +107,25 @@ class ClientTest extends TestCase {
 		);
 		$request = $client->get('1');
 		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request->data->title);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testPostAsObject() {
+		$testURI = $this->url;
+		$client = new Client(
+			[
+				'baseUrl' => $testURI,
+				'object' => true,
+			]
+		);
+		$request = $client->post('', ['data' => [
+			'title' => 'foo',
+			'body' => 'bar',
+			'userId' => 1,
+		]]);
+		// var_dump($request);
+		$this->assertEquals('bar', $request->data->body);
 	}
 }
