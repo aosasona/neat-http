@@ -23,6 +23,7 @@ class Client {
 		$this->object = $options['object'] ?? true;
 		$this->headers = $options['headers'] ?? [
 			'Content-Type' => 'application/json',
+			'Accept' => '*/*',
 		];
 		$this->utils = new Utils($this);
 	}
@@ -45,6 +46,21 @@ class Client {
 	final public function post(string $endpoint, ?array $options = []): array|stdClass {
 		return $this->request($endpoint, array_merge($options, [
 			'method' => 'POST',
+			'headers' => [
+				'Content-Type' => 'application/json',
+			],
+		]));
+	}
+
+	/**
+	 * @param string $endpoint
+	 * @param array|null $options
+	 * @return array|stdClass
+	 * @throws Exception
+	 */
+	final public function delete(string $endpoint, ?array $options = []): array|stdClass {
+		return $this->request($endpoint, array_merge($options, [
+			'method' => 'DELETE',
 		]));
 	}
 
@@ -53,20 +69,11 @@ class Client {
 	 * @param array|null $options
 	 * @return array|stdClass
 	 */
-	final public function delete(string $endpoint, ?array $options = []): array|stdClass {
+	final public function put(string $endpoint, ?array $options = []): array|stdClass {
 		return [];
 	}
 
 	final public function head(string $endpoint, ?array $options = []): array|stdClass {
-		return [];
-	}
-
-	/**
-	 * @param string $endpoint
-	 * @param array|null $options
-	 * @return array|stdClass
-	 */
-	final public function put(string $endpoint, ?array $options = []): array|stdClass {
 		return [];
 	}
 

@@ -146,4 +146,20 @@ class ClientTest extends TestCase {
 		]]);
 		$this->assertEquals('bar', $request->data->body);
 	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testDeleteShouldNotReturnBody() {
+		$testURI = $this->url;
+		$client = new Client(
+			[
+				'baseUrl' => $testURI,
+				'object' => false,
+			]
+		);
+		$request = $client->delete('1');
+		$this->assertEquals([], $request['data']);
+	}
+
 }
