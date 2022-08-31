@@ -9,6 +9,13 @@ use PHPUnit\Framework\TestCase;
 
 class ClientTest extends TestCase {
 
+	private string $url;
+
+	public function __construct() {
+		parent::__construct();
+		$this->url = "https://jsonplaceholder.typicode.com/posts";
+	}
+
 
 	public function testConstruct() {
 		$client = new Client();
@@ -16,9 +23,9 @@ class ClientTest extends TestCase {
 	}
 
 	public function testBaseURL() {
-		$testURI = "https://jsonplaceholder.typicode.com/posts";
+		$testURL = $this->url;
 		$client = new Client([
-			'baseUrl' => $testURI,
+			'baseUrl' => $testURL,
 			'object' => false,
 		]);
 		$this->assertEquals('https://jsonplaceholder.typicode.com/posts', $client->baseUrl);
@@ -72,14 +79,33 @@ class ClientTest extends TestCase {
 		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request->data->title);
 	}
 
-	/*public function testGetAsArray() {
+	/**
+	 * @throws Exception
+	 */
+	public function testGetAsArray() {
 		$testURI = "https://jsonplaceholder.typicode.com/posts";
 		$client = new Client(
 			[
-				'baseUri' => $testURI,
-				'json' => false,
+				'baseUrl' => $testURI,
+				'object' => false,
 			]
 		);
-		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $client->get('1')['data']['title']);
-	}*/
+		$request = $client->get('1');
+		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request['data']['title']);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testGetAsObject() {
+		$testURI = "https://jsonplaceholder.typicode.com/posts";
+		$client = new Client(
+			[
+				'baseUrl' => $testURI,
+				'object' => true,
+			]
+		);
+		$request = $client->get('1');
+		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request->data->title);
+	}
 }

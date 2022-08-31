@@ -1,1 +1,5 @@
-# neat-http
+# Neat HTTP Client
+
+A curL-based HTTP client.
+
+`WIP`

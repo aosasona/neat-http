@@ -11,6 +11,7 @@ class Client {
 	public string $baseUrl;
 	protected bool $object = true;
 	protected array $headers = [];
+	private Utils $utils;
 
 
 	/**
@@ -23,13 +24,16 @@ class Client {
 		$this->headers = $options['headers'] ?? [
 			'Content-Type' => 'application/json',
 		];
+		$this->utils = new Utils($this);
 	}
 
 	/**
 	 * @throws Exception
 	 */
 	final public function get(string $endpoint, ?array $options = []): array|stdClass {
-		return $this->request($endpoint, $options);
+		return $this->request($endpoint, array_merge([$options, [
+			'method' => 'GET',
+		]]));
 	}
 
 	/**
@@ -78,7 +82,7 @@ class Client {
 				'data' => $body,
 				'status' => curl_getinfo($curl, CURLINFO_HTTP_CODE),
 			]);
-		} catch (Exception $e) {
+		} catch(Exception $e) {
 			throw new Exception($e->getMessage());
 		}
 	}
@@ -88,18 +92,7 @@ class Client {
 	 * @return array
 	 */
 	final public function makeHeaders(array $headers = []): array {
-		$finalHeaders = [];
-		if(count($this->headers) > 0) {
-			$headers = array_merge($this->headers, $headers);
-		}
-		if(count($headers) > 0) {
-			foreach($headers as $key => $value) {
-				$key = ucwords(trim($key));
-				$finalHeaders[] = "$key: $value";
-			}
-			return $finalHeaders;
-		}
-		return [];
+		return $this->utils->makeHeaders($headers);
 	}
 
 	/**
@@ -107,10 +100,7 @@ class Client {
 	 * @return array|stdClass
 	 */
 	private function makeResponse(array $response = []): array|stdClass {
-		if($this->object) {
-			return (object) $response;
-		}
-		return $response;
+		return $this->utils->makeResponse($response);
 	}
 
 	/**
@@ -118,23 +108,7 @@ class Client {
 	 * @return array|stdClass
 	 */
 	private function parseResponseHeaders(string $raw_headers): array|stdClass {
-		$headers = [];
-		$raw_headers = explode("\r", $raw_headers);
-		foreach($raw_headers as $header) {
-			if(!strpos($header, ':')) {
-				continue;
-			}
-			$header = explode(':', $header,2);
-			$key = strtolower(trim($header[0]));
-			$value = strtolower(trim($header[1]));
-			if($key) {
-				$headers[$key] = $value;
-			}
-		}
-		if($this->object) {
-			return (object) $headers;
-		}
-		return $headers;
+		return $this->utils->parseResponseHeaders($raw_headers);
 	}
 
 
@@ -145,19 +119,8 @@ class Client {
 	 * @param array $headers
 	 * @return void
 	 */
-	public function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers): void {
-		$uri = $this->baseUrl.'/'.$endpoint;
-		$default_options = [
-			CURLOPT_URL => $uri,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_MAXREDIRS => 20,
-			CURLOPT_HTTPHEADER => $headers,
-			CURLOPT_CUSTOMREQUEST => $method,
-			CURLOPT_FAILONERROR => true,
-			CURLOPT_HEADER => true,
-		];
-		curl_setopt_array($curl, $default_options);
+	private function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers): void {
+		$this->utils->setCurlOptions($curl, $endpoint, $method, $headers);
 	}
 
 	/**
@@ -165,11 +128,7 @@ class Client {
 	 * @return array|object
 	 */
 	private function parseResponse(string $response) {
-		$response = json_decode($response);
-		if($this->object) {
-			return (object) $response;
-		}
-		return (array) $response;
+		return $this->utils->parseResponseBody($response);
 	}
 
 	/**
@@ -178,14 +137,7 @@ class Client {
 	 * @return array
 	 */
 	private function extractHeadersAndBody(CurlHandle|bool $curl, bool|string $response): array {
-		$header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
-		$headers = substr($response, 0, $header_size);
-		$body = substr($response, $header_size);
-
-		return [
-			'headers' => $headers,
-			'body' => $body,
-		];
+		return $this->utils->extractHeadersAndBody($curl, $response);
 	}
 
 	/**
@@ -194,12 +146,8 @@ class Client {
 	 * @return array
 	 */
 	private function prepareRequestParams(?array $options, string $endpoint): array {
-		$method = strtoupper($options['method'] ?? 'GET');
-		$endpoint = trim($endpoint, '/');
-		$headers = $this->makeHeaders($options['headers'] ?? []);
-		return array($method, $endpoint, $headers);
+		return $this->utils->prepareRequestParams($options, $endpoint);
 	}
-
 
 
 	/**
@@ -207,13 +155,22 @@ class Client {
 	 * @return bool|string
 	 */
 	private function executeCurlAndRetryOnSSLError(CurlHandle|bool $curl): string|bool {
-		if(!$response = curl_exec($curl)) {
-			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-			if(!$response = curl_exec($curl)) {
-				trigger_error(curl_error($curl));
-			}
-		}
-		return $response;
+		return $this->utils->executeCurlAndRetryOnSSLError($curl);
+	}
+
+
+	/**
+	 * @return bool
+	 */
+	public function isObject(): bool {
+		return $this->object;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getHeaders(): array {
+		return $this->headers;
 	}
 
 	/**
