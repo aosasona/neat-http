@@ -2,8 +2,8 @@
 
 namespace Trulyao\NeatHttp;
 
-use \stdClass;
-use \Exception;
+use stdClass;
+use Exception;
 use CurlHandle;
 
 class Client {

@@ -40,7 +40,7 @@ class ClientTest extends TestCase {
 		]);
 		$this->assertEquals(
 			array('Content-Type: text/html', 'Accept: application/json')
-		, $headers);
+			, $headers);
 	}
 
 	/**
@@ -57,8 +57,8 @@ class ClientTest extends TestCase {
 				],
 			]
 		);
-		$request = $client->request('/1', ['method' => 'GET']);
-		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request['data']['title']);
+		$response = $client->request('/1', ['method' => 'GET']);
+		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $response['data']['title']);
 	}
 
 	/**
@@ -75,8 +75,8 @@ class ClientTest extends TestCase {
 				],
 			]
 		);
-		$request = $client->request('/1', ['method' => 'GET']);
-		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request->data->title);
+		$response = $client->request('/1', ['method' => 'GET']);
+		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $response->data->title);
 	}
 
 	/**
@@ -90,8 +90,8 @@ class ClientTest extends TestCase {
 				'object' => false,
 			]
 		);
-		$request = $client->get('1');
-		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request['data']['title']);
+		$response = $client->get('1');
+		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $response['data']['title']);
 	}
 
 	/**
@@ -105,8 +105,8 @@ class ClientTest extends TestCase {
 				'object' => true,
 			]
 		);
-		$request = $client->get('1');
-		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $request->data->title);
+		$response = $client->get('1');
+		$this->assertEquals('sunt aut facere repellat provident occaecati excepturi optio reprehenderit', $response->data->title);
 	}
 
 	/**
@@ -120,12 +120,12 @@ class ClientTest extends TestCase {
 				'object' => false,
 			]
 		);
-		$request = $client->post('', ['data' => [
+		$response = $client->post('', ['data' => [
 			'title' => 'foo',
 			'body' => 'bar',
 			'userId' => 1,
 		]]);
-		$this->assertEquals('bar', $request['data']['body']);
+		$this->assertEquals('bar', $response['data']['body']);
 	}
 
 	/**
@@ -139,12 +139,12 @@ class ClientTest extends TestCase {
 				'object' => true,
 			]
 		);
-		$request = $client->post('', ['data' => [
+		$response = $client->post('', ['data' => [
 			'title' => 'foo',
 			'body' => 'bar',
 			'userId' => 1,
 		]]);
-		$this->assertEquals('bar', $request->data->body);
+		$this->assertEquals('bar', $response->data->body);
 	}
 
 	/**
@@ -158,8 +158,8 @@ class ClientTest extends TestCase {
 				'object' => false,
 			]
 		);
-		$request = $client->delete('1');
-		$this->assertEquals([], $request['data']);
+		$response = $client->delete('1');
+		$this->assertEquals([], $response['data']);
 	}
 
 	/**
@@ -173,15 +173,15 @@ class ClientTest extends TestCase {
 				'object' => true,
 			]
 		);
-		$request = $client->put('1', ['data' => [
+		$response = $client->put('1', ['data' => [
 			'id' => 1,
 			'title' => 'hello',
 			'body' => 'world',
 			'userId' => 20,
 		]]);
-		$this->assertEquals('hello', $request->data->title);
-		$this->assertEquals('world', $request->data->body);
-		$this->assertEquals('20', $request->data->userId);
+		$this->assertEquals('hello', $response->data->title);
+		$this->assertEquals('world', $response->data->body);
+		$this->assertEquals('20', $response->data->userId);
 	}
 
 	/**
@@ -195,11 +195,25 @@ class ClientTest extends TestCase {
 				'object' => true,
 			]
 		);
-		$request = $client->patch('1', ['data' => [
+		$response = $client->patch('1', ['data' => [
 			'body' => 'updated',
 		]]);
-		$this->assertEquals('1', $request->data->userId);
-		$this->assertEquals('updated', $request->data->body);
+		$this->assertEquals('1', $response->data->userId);
+		$this->assertEquals('updated', $response->data->body);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testGetWithAuthentication() {
+		$client = new Client();
+		$response = $client->get('https://php-notes-api.herokuapp.com/v1/notes', [
+			'headers'=> [
+				'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcGhwLW5vdGVzLWFwaS5oZXJva3VhcHAuY29tIiwiYXVkIjoiaHR0cDovL3BocC1ub3Rlcy1hcGkuaGVyb2t1YXBwLmNvbSIsImlhdCI6MTY2MTk2MzEwNCwiZXhwIjoxNjYxOTY2NzA0LCJkYXRhIjp7InVzZXJfaWQiOjR9fQ.RpLbqocuO24IV4dBp-XbMuPh9KfqJ3Ia6pzDTG6eRII',
+			],
+		]);
+		var_dump($response);
+		$this->assertEquals('Here you go!', $response->data->message);
 	}
 
 }

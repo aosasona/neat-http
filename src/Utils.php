@@ -104,6 +104,7 @@ class Utils {
 		if(!$response = curl_exec($curl)) {
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 			if(!$response = curl_exec($curl)) {
+				print_r(curl_exec($curl));
 				trigger_error(curl_error($curl));
 			}
 		}
