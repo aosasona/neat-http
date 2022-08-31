@@ -162,4 +162,44 @@ class ClientTest extends TestCase {
 		$this->assertEquals([], $request['data']);
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	public function testPutShouldReplaceAllData() {
+		$testURI = $this->url;
+		$client = new Client(
+			[
+				'baseUrl' => $testURI,
+				'object' => true,
+			]
+		);
+		$request = $client->put('1', ['data' => [
+			'id' => 1,
+			'title' => 'hello',
+			'body' => 'world',
+			'userId' => 20,
+		]]);
+		$this->assertEquals('hello', $request->data->title);
+		$this->assertEquals('world', $request->data->body);
+		$this->assertEquals('20', $request->data->userId);
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	public function testPatchShouldReplacePartially() {
+		$testURI = $this->url;
+		$client = new Client(
+			[
+				'baseUrl' => $testURI,
+				'object' => true,
+			]
+		);
+		$request = $client->patch('1', ['data' => [
+			'body' => 'updated',
+		]]);
+		$this->assertEquals('1', $request->data->userId);
+		$this->assertEquals('updated', $request->data->body);
+	}
+
 }

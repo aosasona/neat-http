@@ -22,8 +22,8 @@ use Trulyao\NeatHttp\Client;
 
 $client = new Client(
     [
-        'baseUrl' => $testURI,
-        'object' => true,
+        'baseUrl' => 'http://example.com',
+        'object' => true, // return object instead of array
         'headers' => [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
@@ -45,4 +45,4 @@ $variable2 = $client->post('', [
 
 
 
-> Check `__tests__` for more usage example or serve the `examples` folder with the PHP server to use a GUI to test the client.
+> Check `__tests__` for more usage example.

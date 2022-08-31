@@ -58,9 +58,24 @@ class Client {
 	 * @return array|stdClass
 	 * @throws Exception
 	 */
-	final public function delete(string $endpoint, ?array $options = []): array|stdClass {
+	final public function put(string $endpoint, ?array $options = []): array|stdClass {
 		return $this->request($endpoint, array_merge($options, [
-			'method' => 'DELETE',
+			'method' => 'PUT',
+			'headers' => [
+				'Content-Type' => 'application/json',
+			],
+		]));
+	}
+
+	/**
+	 * @throws Exception
+	 */
+	final public function patch(string $endpoint, ?array $options = []): array|stdClass {
+		return $this->request($endpoint, array_merge($options, [
+			'method' => 'PATCH',
+			'headers' => [
+				'Content-Type' => 'application/json',
+			],
 		]));
 	}
 
@@ -68,13 +83,12 @@ class Client {
 	 * @param string $endpoint
 	 * @param array|null $options
 	 * @return array|stdClass
+	 * @throws Exception
 	 */
-	final public function put(string $endpoint, ?array $options = []): array|stdClass {
-		return [];
-	}
-
-	final public function head(string $endpoint, ?array $options = []): array|stdClass {
-		return [];
+	final public function delete(string $endpoint, ?array $options = []): array|stdClass {
+		return $this->request($endpoint, array_merge($options, [
+			'method' => 'DELETE',
+		]));
 	}
 
 	/**
