@@ -3,6 +3,7 @@
 namespace Trulyao\NeatHttp;
 
 use CurlHandle;
+use Trulyao\NeatHttp\HTTPException as HTTPException;
 use stdClass;
 
 class Utils {
@@ -14,28 +15,7 @@ class Utils {
 		$this->serializers = new Serializers($this);
 	}
 
-	/**
-	 * @param CurlHandle $curl
-	 * @param string $endpoint
-	 * @param string $method
-	 * @param array $headers
-	 * @return void
-	 */
-	public function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers, array $data): void {
-		$uri = $this->client->baseUrl.'/'.$endpoint;
-		$default_options = [
-			CURLOPT_URL => $uri,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_MAXREDIRS => 20,
-			CURLOPT_HTTPHEADER => $headers,
-			CURLOPT_CUSTOMREQUEST => $method,
-			CURLOPT_FAILONERROR => true,
-			CURLOPT_HEADER => true,
-			CURLOPT_POSTFIELDS => json_encode($data),
-		];
-		curl_setopt_array($curl, $default_options);
-	}
+
 
 	/**
 	 * @param string $response
@@ -96,17 +76,45 @@ class Utils {
 		return array($method, $endpoint, $headers, $data);
 	}
 
-	/**
-	 * @param CurlHandle|bool $curl
-	 * @return bool|string
-	 */
-	public function executeCurlAndRetryOnSSLError(CurlHandle|bool $curl): string|bool {
+    /**
+     * @param CurlHandle $curl
+     * @param string $endpoint
+     * @param string $method
+     * @param array $headers
+     * @param array $data
+     * @return void
+     */
+    public function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers, array $data): void {
+        $uri = $this->client->baseUrl ? $this->client->baseUrl.'/'.$endpoint : $endpoint;
+        $default_options = [
+            CURLOPT_URL => $uri,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 20,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_CUSTOMREQUEST => $method,
+            CURLOPT_FAILONERROR => true,
+            CURLOPT_HEADER => true,
+            CURLOPT_POSTFIELDS => json_encode($data),
+        ];
+        curl_setopt_array($curl, $default_options);
+    }
+
+    /**
+     * @param CurlHandle|bool $curl
+     * @return bool|string|array
+     * @throws HttpException
+     */
+	public function executeCurlAndRetryOnSSLError(CurlHandle|bool $curl): bool|string|array
+    {
 		if(!$response = curl_exec($curl)) {
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-			if(!$response = curl_exec($curl)) {
-				print_r(curl_exec($curl));
-				trigger_error(curl_error($curl));
-			}
+            $response = curl_exec($curl);
+            if(curl_errno($curl)){
+                $status_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+                $message = curl_error($curl);
+                throw new HttpException($message, $status_code);
+            }
 		}
 		return $response;
 	}

@@ -23,7 +23,6 @@ class Client {
 		$this->object = $options['object'] ?? true;
 		$this->headers = $options['headers'] ?? [
 			'Content-Type' => 'application/json',
-			'Accept' => '*/*',
 		];
 		$this->utils = new Utils($this);
 	}
@@ -154,13 +153,14 @@ class Client {
 	}
 
 
-	/**
-	 * @param CurlHandle $curl
-	 * @param string $endpoint
-	 * @param string $method
-	 * @param array $headers
-	 * @return void
-	 */
+    /**
+     * @param CurlHandle $curl
+     * @param string $endpoint
+     * @param string $method
+     * @param array $headers
+     * @param array $data
+     * @return void
+     */
 	private function setCurlOptions(CurlHandle $curl, string $endpoint, string $method, array $headers, array $data): void {
 		$this->utils->setCurlOptions($curl, $endpoint, $method, $headers, $data);
 	}
@@ -192,10 +192,11 @@ class Client {
 	}
 
 
-	/**
-	 * @param CurlHandle|bool $curl
-	 * @return bool|string
-	 */
+    /**
+     * @param CurlHandle|bool $curl
+     * @return bool|string
+     * @throws HTTPException
+     */
 	private function executeCurlAndRetryOnSSLError(CurlHandle|bool $curl): string|bool {
 		return $this->utils->executeCurlAndRetryOnSSLError($curl);
 	}
