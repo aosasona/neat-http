@@ -201,18 +201,4 @@ class ClientTest extends TestCase {
 		$this->assertEquals('1', $response->data->userId);
 		$this->assertEquals('updated', $response->data->body);
 	}
-
-	/**
-	 * @throws Exception
-	 */
-	public function testGetWithAuthentication() {
-		$client = new Client();
-		$response = $client->get('https://php-notes-api.herokuapp.com/v1/notes', [
-			'headers'=> [
-				'Authorization' => 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vcGhwLW5vdGVzLWFwaS5oZXJva3VhcHAuY29tIiwiYXVkIjoiaHR0cDovL3BocC1ub3Rlcy1hcGkuaGVyb2t1YXBwLmNvbSIsImlhdCI6MTY2MjA1NTEzNSwiZXhwIjoxNjYyMDU4NzM1LCJkYXRhIjp7InVzZXJfaWQiOjR9fQ.lsatADV5RPMGvsUfUI7LYRjVZVd7QwoLWM3Z5hiSJ78',
-			],
-		]);
-		$this->assertEquals('Here you go!', $response->data->message);
-	}
-
 }
